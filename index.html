@@ -305,7 +305,7 @@ function convToTxt(c){ let s="==================================================
   return s; }
 
 function fmtTs(ts){ if(ts==null) return ""; if(typeof ts==="number"){
-    try{ return new Date(ts/1000).toISOString().replace("T"," ").slice(0,19)+" UTC"; }catch(e){ return String(ts);} }
+    try{ return new Date(ts).toISOString().replace("T"," ").slice(0,19)+" UTC"; }catch(e){ return String(ts);} }
   return String(ts).replace("T"," ").replace("Z","").slice(0,19); }
 
 function q(db,sql){ const r=db.exec(sql); if(!r.length) return []; const {columns,values}=r[0];
