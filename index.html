@@ -32,7 +32,7 @@
 </head>
 <body>
 <header>
-  <h1>RikkaHub 备份解包 · 浏览器版</h1>
+  <h1>RikkaHub 备份解包 · 浏览器版 <span style="font-size:12px;opacity:.75;font-weight:400">v1.1</span></h1>
   <p>选择「设置 → 备份与恢复」导出的 .zip（或解压后的 rikka_hub.db）。所有解析都在你手机/电脑本地完成，数据不会上传。</p>
 </header>
 <main>
@@ -362,7 +362,7 @@ async function processFile(file){
   const SQL=await initSqlJs({locateFile});
   const db=new SQL.Database(dbBytes);
   const convoTable = pickTable(db, ["conversationentity","conversation"], "conversation");
-  if(!convoTable) throw new Error("这个 db 里没有会话表（ConversationEntity / conversation），可能不是 RikkaHub 备份，或文件未正确解出");
+  if(!convoTable){ const _r=db.exec("SELECT name FROM sqlite_master WHERE type='table'"); const _t=_r.length?_r[0].values.map(v=>v[0]).join(", "):"(空)"; throw new Error("没有会话表(ConversationEntity/conversation)。该库现有表: "+_t); }
   const msgTable = pickTable(db, ["message_node"], "message_node");
   const convs=q(db,`SELECT id,title,create_at,update_at,is_pinned FROM "${convoTable}" ORDER BY update_at DESC`);
   for(const c of convs){
