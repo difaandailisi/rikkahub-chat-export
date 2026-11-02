@@ -19,7 +19,13 @@ rikkahub_backup_YYYYMMDD_HHMMSS.zip
 
 ## 2. 数据库 schema（仅与本工具相关的两张表）
 
-### conversation（会话元数据）
+### ConversationEntity（会话元数据）
+
+> ⚠️ 表名注意：`ConversationEntity` 的 `@Entity` **没有**写 `tableName`，
+> Room 默认用**类名**建表，因此真实表名是 `ConversationEntity`（DAO 中小写写作
+> `conversationentity`，SQLite 大小写不敏感）。**不是** `conversation`。
+> 本工具用 `pickTable()` / `convo_table` 自动探测 `ConversationEntity` 与旧版
+> `conversation`，避免版本差异导致 `no such table`。
 
 | 列 | 类型 | 说明 |
 |---|---|---|

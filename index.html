@@ -345,6 +345,15 @@ async function findDb(bytes, name){
   return await f.async("uint8array");
 }
 
+function pickTable(db, exact, contains){
+  const r=db.exec("SELECT name FROM sqlite_master WHERE type='table'");
+  const names = r.length ? r[0].values.map(v=>v[0]) : [];
+  for(const n of names){ if(exact.includes(n.toLowerCase())) return n; }
+  if(contains){ for(const n of names){ const l=n.toLowerCase();
+    if(l.includes(contains) && !l.includes("node")) return n; } }
+  return null;
+}
+
 async function processFile(file){
   setStatus(`读取 ${file.name} …`);
   const raw=await readFileBytes(file);
@@ -352,9 +361,13 @@ async function processFile(file){
   setStatus("初始化 SQLite 引擎 …");
   const SQL=await initSqlJs({locateFile});
   const db=new SQL.Database(dbBytes);
-  const convs=q(db,"SELECT id,title,create_at,update_at,is_pinned FROM conversation ORDER BY update_at DESC");
+  const convoTable = pickTable(db, ["conversationentity","conversation"], "conversation");
+  if(!convoTable) throw new Error("这个 db 里没有会话表（ConversationEntity / conversation），可能不是 RikkaHub 备份，或文件未正确解出");
+  const msgTable = pickTable(db, ["message_node"], "message_node");
+  const convs=q(db,`SELECT id,title,create_at,update_at,is_pinned FROM "${convoTable}" ORDER BY update_at DESC`);
   for(const c of convs){
-    const nodes=q(db,`SELECT messages,select_index FROM message_node WHERE conversation_id='${c.id}' ORDER BY node_index ASC`);
+    let nodes=[];
+    if(msgTable) nodes=q(db,`SELECT messages,select_index FROM "${msgTable}" WHERE conversation_id='${c.id}' ORDER BY node_index ASC`);
     c.messages=nodes.map(n=>{ const msgs=JSON.parse(n.messages); const sel=n.select_index||0; return msgs[sel]||msgs[msgs.length-1]; });
   }
   db.close();

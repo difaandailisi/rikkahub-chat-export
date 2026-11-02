@@ -91,7 +91,7 @@ Markdown、TXT 与合并 PDF（用按真实表结构构造的测试库生成）�
 ## 数据存储原理 · How It Works
 
 - 聊天记录在 `message_node` 表：`conversation_id` + `node_index`（顺序）+ `messages`（JSON）+ `select_index`（选中分支）
-- `conversation` 表存标题、时间、置顶；其 `nodes` 列在新版恒为 `"[]"`
+- 会话元数据在 `ConversationEntity` 表（Room 默认以类名建表，SQLite 大小写不敏感；旧版可能叫 `conversation`，工具会自动识别）
 - 每条 `UIMessage` 含 `role` 与 `parts[]`，`parts` 用 `type` 区分
   `text / reasoning / image / video / audio / document / tool / server_tool / ...`
 - 完整表结构、JSON 格式与扩展指南见 [`AGENTS.md`](AGENTS.md)（写给 AI / 二次开发者）
